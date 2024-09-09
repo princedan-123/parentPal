@@ -1,0 +1,43 @@
+{
+  "name": "parentpal",
+  "version": "1.0.0",
+  "description": "A recommendation app for teachers/tutors",
+  "main": "app.js",
+  "scripts": {
+    "test": "",
+    "dev": "nodemon app.js"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/princedan-123/parentPal.git"
+  },
+  "keywords": [
+    "portfolio",
+    "project",
+    "learning",
+    "backend",
+    "concepts"
+  ],
+  "author": "Daniel Ebuka Mabia,  Uko uwatt",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/princedan-123/parentPal/issues"
+  },
+  "homepage": "https://github.com/princedan-123/parentPal#readme",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongodb": "^6.8.0",
+    "redis": "^4.7.0",
+    "sha1": "^1.1.1",
+    "uuid": "^8.2.0"
+  },
+  "devDependencies": {
+    "eslint": "^6.4.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jest": "^22.17.0",
+    "nodemon": "^3.1.4"
+  }
+}

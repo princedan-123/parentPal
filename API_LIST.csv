@@ -1,0 +1,14 @@
+Teacher's API list:
+Method               Endpoint                       auth
+POST                /createTeacher                 public
+GET                 /viewProfile?userId=value      private
+PATCH               /updateProfile?userId=value    private
+DELETE              /removeUser?userId=value       private
+GET                 /seen?userId=value             private
+
+Client API list:
+GET                 /search?subject=value&location=value        public
+POST                /createClient                               public
+PATCH               /updateProfile?userId=value                 private
+DELETE              /removeUser?userId=value                    private
+/POST               /chat                                       private
