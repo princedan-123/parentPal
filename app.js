@@ -8,5 +8,5 @@ app.all('/', (req, res) => {
   res.send('welcome to parentPal\n');
 })
 app.listen(SERVER_PORT, () => {
-  console.log('server is runing');
+  console.log('server is running');
 })
