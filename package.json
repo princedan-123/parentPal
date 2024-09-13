@@ -19,13 +19,14 @@
     "backend",
     "concepts"
   ],
-  "author": "Daniel Ebuka Mabia,  Uko uwatt",
+  "author": "Daniel Ebuka Mabia,  Uko Uwatt",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/princedan-123/parentPal/issues"
   },
   "homepage": "https://github.com/princedan-123/parentPal#readme",
   "dependencies": {
+    "axios": "^1.7.7",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "mongodb": "^6.8.0",
