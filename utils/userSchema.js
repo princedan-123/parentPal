@@ -4,7 +4,7 @@ export const userSchema = {
     "userName": "",
     "subject":  ["array of subjects"],
     "available": true,
-    "Qualifications": [],
+    "qualifications": [],
     "phoneNumber": "",
     "email": "",
     "password": "",
