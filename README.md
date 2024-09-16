@@ -16,7 +16,7 @@ The api contains the following endpoints
  - /removeTutor
  - /updateTutorProfile
 
-<h2>createTutor Endpoint:<h2>
+<h2>createTutor Endpoint:</h2>
 This endpoints creates a new tutor resource. it utilizes an external api(tomtom api) for geocoding the tutor's location (latitude and longitude).
 **Request data**
 Method: This endpoint uses a POST HTTP metod
@@ -42,6 +42,8 @@ Body: The POST request body should be a json payload with the following mandator
 	    "area":  "string",
 	    "street":"string"
 }
+
+
 **Response**
 
 Status code 400 : A 400 status code with a json missing field  indicates that one of the fields is missing. If email or password field is missing the json error field will indicate missing email or missing password
@@ -110,6 +112,8 @@ Status Code 404: A  404 status code indicates that the user is not found. This i
     {
 	    "error": "user not found"	
     }
+
+
 <h2>/logout_tutor:</h2>
 It destroys removes the user from the app session my destroying the session object, clears the session cookie.
 **Request data**
@@ -131,6 +135,8 @@ Status code 500: this indicates that an internal error occured and the user is s
     {	
 	    "error": "${userName} is still active"
     }
+
+
 <h2>/updateTutorProfile:</h2>
 It updates or changes certain fields in the user profile. Note sensitive fields like email and  password can not be changed.
 **Request data**
@@ -187,6 +193,7 @@ Status code 500: this indicates that an internal error in the database operation
 	    "error": "error message"
     }
 
+
 <h2>/removeTutor:</h2>
 It deletes a tutor's account from the database.
 **Request data**
@@ -199,6 +206,7 @@ Request body: The Delete request should contain a json payload with email and pa
 	    "email": "string",
 	    "password": "string"
     }
+
 
 **Response**
 Status code 404: This indicates the user is not found in the session or the user is not found in the database.  It is followed by a json response.
@@ -228,6 +236,7 @@ For missing password field:
     {	
 	    "unauthorized": "incorrect password"
     }
+
 
 Status code 200: A json response along with the status code 200 is returned to signify that the tutor's account has been successfully removed.
 
