@@ -16,7 +16,7 @@ The api contains the following endpoints
  - /removeTutor
  - /updateTutorProfile
 
-**/createTutor Endpoint:**
+<h2>createTutor Endpoint:<h2>
 This endpoints creates a new tutor resource. it utilizes an external api(tomtom api) for geocoding the tutor's location (latitude and longitude).
 **Request data**
 Method: This endpoint uses a POST HTTP metod
@@ -55,7 +55,7 @@ Status code 400 : A 400 status code with a json missing field  indicates that on
 
 Status code 201: This indicates the tutor resource was created sucessfully. A json payload is also return with the userId field
 Status code 500: This indicates an internal server issue from the utilization of the tomtom geocoding API.
-**/login endpoint:**
+<h2>/login endpoint:</h2>
 This enpoint takes authentication credentials (email and password) and  gives a specific tutor resource access to the app after authenticating the login credentials. it logs in the user and utilizes session based authentication to keep the user authenticated through out the session.
 **Request data**
 Method: This endpoint uses a POST HTTP metod
@@ -82,7 +82,7 @@ Status code 200: This means the tutor is logged in successfully. A json payload 
     }
  Status code 500: A 500 status code is returned if  the database is unable to authenticate the tutor.
  
-  **viewTutorProfile:**
+  <h2>viewTutorProfile:</h2>
   This endpoint is used to acess public or non sensisitive information about the tutor resource.
   **Request data**: 
   Method: This endpoint uses a GET HTTP metod.
@@ -94,10 +94,10 @@ Status code 200: A 200 status code and a json payload containinig information ab
 	    "firstName":  "Daniel",
 	    "lastName":  "Mabia",
 	    "userName":  "De Prince",
-	    "qualifications":  [
-							    "Bsc Animal and Enviromental Biology",
-							    "Msc parasitology"
-							],
+	    "qualifications": [
+            "Bsc Animal and Enviromental Biology",
+            "Msc parasitology"
+            ],
 		"available":  false,
 		"country":  "Nigeria",
 		"state":  "Edo",
@@ -110,7 +110,7 @@ Status Code 404: A  404 status code indicates that the user is not found. This i
     {
 	    "error": "user not found"	
     }
-**/logout_tutor:**
+<h2>/logout_tutor:</h2>
 It destroys removes the user from the app session my destroying the session object, clears the session cookie.
 **Request data**
 Method: This endpoint uses a DELETE HTTP metod
@@ -131,7 +131,7 @@ Status code 500: this indicates that an internal error occured and the user is s
     {	
 	    "error": "${userName} is still active"
     }
-**/updateTutorProfile:**
+<h2>/updateTutorProfile:</h2>
 It updates or changes certain fields in the user profile. Note sensitive fields like email and  password can not be changed.
 **Request data**
 Method: This endpoint uses a PATCH HTTP metod
@@ -187,7 +187,7 @@ Status code 500: this indicates that an internal error in the database operation
 	    "error": "error message"
     }
 
-**/removeTutor:**
+<h2>/removeTutor:</h2>
 It deletes a tutor's account from the database.
 **Request data**
 Method: This endpoint uses a DELETE HTTP metod
