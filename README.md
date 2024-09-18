@@ -9,18 +9,18 @@ All the endpoints uses either of the following base url. It should be noted that
 
 **Endpoints**
 The api contains the following endpoints
- - /createTutor
- - /login
- - /viewTutorProfile
- - /logout_tutor
- - /removeTutor
- - /updateTutorProfile
+ - /tutor/createTutor
+ - /tutor/login
+ - /tutor/viewProfile
+ - /tutor/logout
+ - /tutor/remove
+ - /tutor/updateProfile
 
 <h2>createTutor Endpoint:</h2>
 This endpoints creates a new tutor resource. it utilizes an external api(tomtom api) for geocoding the tutor's location (latitude and longitude).
 **Request data**
 Method: This endpoint uses a POST HTTP metod
-url: www.http://localhost:8080/createTutor
+url: www.http://localhost:8080/tutor/createTutor
 Request header: The Content-Type header should be application/json as the post request body is a json payload.
 Body: The POST request body should be a json payload with the following mandatory fields
 	
@@ -62,7 +62,7 @@ This enpoint takes authentication credentials (email and password) and  gives a 
 
 **Request data**
 Method: This endpoint uses a POST HTTP metod
-url: www.http://localhost:8080/login
+url: www.http://localhost:8080/tutor/login
 Request header: The Content-Type header should be application/x-www-form-urlencoded as the post request body is a urlencoded form data
 Body: The request body of the POST request is a urlencoded form data with the email key containing the tutor's email and the password key containing the tutor's password.
 **Response**
@@ -85,13 +85,13 @@ Status code 200: This means the tutor is logged in successfully. A json payload 
     }
  Status code 500: A 500 status code is returned if  the database is unable to authenticate the tutor.
  
-  <h2>viewTutorProfile:</h2>
+  <h2>viewProfile:</h2>
   This endpoint is used to acess public or non sensisitive information about the tutor resource.
   It should be noted that this api is session authentication based hence it uses the cookie created in the login session to identify the user in the session.
   **Request data**: 
   Method: This endpoint uses a GET HTTP metod.
   Cookie: sessionId={cookie returned by login Api}
-url: www.http://localhost:8080/viewTutorProfile.
+url: www.http://localhost:8080/tutor/viewProfile.
 **Response**
 Status code 200: A 200 status code and a json payload containinig information about the tutor resource is returned.
 
@@ -117,12 +117,12 @@ Status Code 404: A  404 status code indicates that the user is not found. This i
     }
 
 
-<h2>/logout_tutor:</h2>
+<h2>/logout:</h2>
 It destroys removes the user from the app session my destroying the session object, clears the session cookie.
 **Request data**
 Method: This endpoint uses a DELETE HTTP method.
 Cookie:sessionId={cookie from login Api}.
-url: www.http://localhost:8080/logout_tutor
+url: www.http://localhost:8080/tutor/logout
 **Response**
 Status code 404: This indicates the user is not found in the session. It is followed by a json response.
 
@@ -141,12 +141,12 @@ Status code 500: this indicates that an internal error occured and the user is s
     }
 
 
-<h2>/updateTutorProfile:</h2>
+<h2>/updateProfile:</h2>
 It updates or changes certain fields in the user profile. Note sensitive fields like email and  password can not be changed.
 Note the user must be an authenticated user. This api uses the sessionId cookie that was created during the login stage to authenticate the user.
 **Request data**
 Method: This endpoint uses a PATCH HTTP metod
-url: www.http://localhost:8080/updateTutorProfile
+url: www.http://localhost:8080/tutor/updateProfile
 Cookie:sessionId({from login API})
 Request header: It should contain  a Content-Type header of application/json
 Request body: The PATCH request should contain a json payload that contains the fields the tutor wants to change with their corresponding values.
@@ -181,6 +181,11 @@ When no new data was introduced
     {	
 	    "message": "no changes were made to profile"
     }
+
+When the value is inappropriate:
+    {
+        "error": "${fieldName} is an array"
+    }
 Status code 404: This indicates the user was not found in the session. it is accompanied by a json payload:
 
     {	
@@ -200,12 +205,12 @@ Status code 500: this indicates that an internal error in the database operation
     }
 
 
-<h2>/removeTutor:</h2>
+<h2>/remove:</h2>
 It deletes a tutor's account from the database.
 **Request data**
 Method: This endpoint uses a DELETE HTTP metod
 Cookie:sessionID({Cookie value from login API})
-url: www.http://localhost:8080/removeTutor
+url: www.http://localhost:8080/tutor/remove
 Request header: It should contain  a Content-Type header of application/json
 Request body: The Delete request should contain a json payload with email and password fields.
 

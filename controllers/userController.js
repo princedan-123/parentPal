@@ -55,7 +55,7 @@ const userController = {
   },
   async profile(request, response) {
     if (!request.session.user) {
-      return response.status(401).json({ error : "unauthenticated user"});
+      return response.status(404).json({ error : "user not found"});
     }
     if(request.session.user) {
       const {
@@ -81,7 +81,7 @@ const userController = {
   },
   async logout(request, response) {
     if(!request.session.user) {
-      return response.status(401).json({ error: 'user not logged in'});
+      return response.status(404).json({ error: 'user not logged in'});
     }
     const {userName} = request.session.user;
     request.session.destroy();
@@ -93,7 +93,7 @@ const userController = {
   },
   async removeTutor(request, response) {
     if(!request.session.user) {
-      return response.status(401).json({ unauthorized: 'user not logged in' });
+      return response.status(404).json({ unauthorized: 'user not logged in' });
     }
     const { email, password } = request.body;
     if(!email) {
@@ -129,7 +129,6 @@ const userController = {
       return response.status(404).json({ error: 'user not found' });
     }
     const { email } = request.session.user;
-    console.log(email)
     // retrieve the data we want to update
     const update = request.body;
     if(update) {
@@ -139,9 +138,19 @@ const userController = {
         'state', 'city', 'area',
         'street' 
       ]
+      // a list of field that must be an array
+      const arrayFields = ['subjects', 'qualifications', 'socialMediaHandles']
       for(const field of Object.keys(update)) {
         if(!mutable.includes(field)) {
           return response.status(400).json({ error: `you cannot update this ${field}`});
+        }
+        if(arrayFields.includes(field)){
+          if(!Array.isArray(update[field])) {
+            return response.status(400).json({ error: `${field} is an array`});
+          }
+        }
+        if(!arrayFields.includes(field)) {
+          update[field] = update[field].toString();
         }
       }
       await db.init();

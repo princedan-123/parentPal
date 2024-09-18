@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import session from 'express-session';
 import RedisStore from 'connect-redis';
 import router from './routes/tutorsRoute.js';
+import clientRouter from './routes/clientRoute.js';
 import redisClient from './utils/redis.js';
 
 dotenv.config();
@@ -23,7 +24,8 @@ app.use(session({
   }
 
 }));
-app.use(router);
+app.use(clientRouter);
+app.use('/tutor', router);
 app.get('/', (req, res) => {
   res.send('welcome to parentPal\n');
 })
