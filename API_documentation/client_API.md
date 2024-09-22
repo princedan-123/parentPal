@@ -31,6 +31,7 @@ Body: The POST request body should be a json payload with the following mandator
 	    "firstName":  "string",
 	    "lastName":  "string",
 	    "userName":  "string",
+        "gender": "string"
 	    "subject": ["array of subjects"],
 	    "available":  true,
 	    "qualifications": [],
