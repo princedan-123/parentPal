@@ -2,7 +2,6 @@ import sha1 from 'sha1';
 import axios from 'axios';
 import db from '../utils/db.js';
 import { validateNewUSer } from '../utils/userValidation.js';
-import { json } from 'express';
 
 const userController = {
   async createTutor(request, response) {
@@ -14,7 +13,7 @@ const userController = {
     }
     if (validity.valid) {
       // email validation
-      const { email, password, userName, country, state, area, street } = userData;
+      const { email, password, country, state, area, street, majorRoad, city } = userData;
       if (!email) {
         return response.status(400).json({error: 'missing email'});
       }
@@ -26,28 +25,64 @@ const userController = {
       try {
         await db.init();
         // check if user already exists
-        const query = await db.tutorCollection.find({email, userName}).toArray();
+        const query = await db.tutorCollection.find({email}).toArray();
         if (query.length > 0) {
           return response.status(403).json({error: 'user already exist'});
         }
-        const searchText = `${street} ${area} ${state} ${country}`
-        const encodedUri = encodeURI(`https://api.tomtom.com/search/2/geocode/${searchText}.json`)
-        const res = await axios.get(encodedUri, {params: {key: process.env.tomApi_key}});
-        const results = res.data.results;
-        results.sort((a, b) => {
-          return b.matchConfidence.score - a.matchConfidence.score;
-        })
-        const closestMatch = results[0];
-        userData.position = {
-          latitude: closestMatch.position.lat,
-          longitude: closestMatch.position.lon
+        const searchText = `${country} ${state} ${city} ${area} ${street} ${majorRoad}`
+        let encodedUri = encodeURI(`https://api.tomtom.com/search/2/geocode/${searchText}.json`)
+        let res = await axios.get(encodedUri, { params: { key: process.env.tomApi_key } });
+        let results = res.data.results;
+        if(results.length !== 0) {
+          results.sort((a, b) => {
+            return b.matchConfidence.score - a.matchConfidence.score;
+          })
+          const closestMatch = results[0];
+          console.log('!!closestMatch:', closestMatch)
+          userData.position = {
+            latitude: closestMatch.position.lat,
+            longitude: closestMatch.position.lon
+          }
+          userData.password = hashedPassword;
+          userData.createdOn = new Date().toDateString();
+          const insertResult = await db.tutorCollection.insertOne(userData);
+          if(insertResult){
+            return response.status(201).json({ message: `Tutor ${userData.lastName} has been created successfully` });
+          }
         }
-        userData.password = hashedPassword;
-        userData.createdOn = new Date().toDateString();
-        const insertResult = await db.tutorCollection.insertOne(userData);
-        return response.status(201).json({userId: insertResult.insertedId})
+        // // fallback geocoding with openroute API
+        // encodedUri = encodeURI('https://api.openrouteservice.org/geocode/search');
+        // const httpResponse = await axios.get(encodedUri, { params: {
+        //   "api_key": process.env.openRoute_key,
+        //   "text": searchText
+        // }})
+        // results = httpResponse.data.features;
+        // if(results.length !== 0) {
+        //   // find the location with the highest confidence score
+        //   results.sort((a, b) => {
+        //     return b.properties.confidence - a.properties.confidence;
+        //   });
+        //   const closestMatch = results[0];
+        //   console.log('!!!closest match:', closestMatch)
+        //   userData.position = {
+        //     latitude: closestMatch.geometry.coordinates[1],
+        //     longitude: closestMatch.geometry.coordinates[0]
+        //   }
+        //   userData.password = hashedPassword;
+        //   userData.createdOn = new Date().toDateString();
+        //   userData.geocoding = 'fallback';
+        //   const insertResult = await db.tutorCollection.insertOne(userData);
+        //   if(insertResult){
+        //     return response.status(201).json({ message: `Tutor ${userData.lastName} has been created successfully` });
+        //   }
+        // }
+        else {
+          return response.status(404).json({ 
+            error: "unable to geocode address, please provide more data"
+          })
+        }
       } catch(error) {
-        return response.status(500).json({error: `${error}`})
+          return response.status(500).json({error: `${error.message}`})
       } finally {
         await db.close();
       }

@@ -1,6 +1,7 @@
 export const userSchema = {
     "firstName": "string",
     "lastName": "string",
+    "gender": "string",
     "userName": "",
     "subject":  ["array of subjects"],
     "available": true,
@@ -13,5 +14,6 @@ export const userSchema = {
     "state": "",
     "city": "",
     "area": "",
-    "street":"" 
+    "street":"",
+    "majorRoad":""
 }
