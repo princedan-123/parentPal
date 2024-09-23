@@ -27,10 +27,7 @@
   "homepage": "https://github.com/princedan-123/parentPal#readme",
   "dependencies": {
     "axios": "^1.7.7",
-<<<<<<< HEAD
     "connect-redis": "^7.1.1",
-=======
->>>>>>> 2536a14b2103f94f48349433f470e2e9d0dcd8b0
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "mongodb": "^6.8.0",

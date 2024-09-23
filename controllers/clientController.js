@@ -5,6 +5,7 @@ import axios from 'axios';
 
 const ClientController = {
   async createClient(req, res) {
+    console.log('createClient');
     const {firstName, lastName, email, password, phone, streetNumber, streetName, city, state, country} = req.body;
     if (!firstName || !lastName || !email || !password || !phone || !streetNumber || !streetName || !city || !state || !country) {
       return res.status(400).json({ message: 'Missing required fields' });
@@ -21,8 +22,9 @@ const ClientController = {
       // prepare query string for geocoding
       const query = `${streetNumber} ${streetName} ${city} ${state} ${country}`;
       const uri = encodeURI(`https://api.tomtom.com/search/2/geocode/${query}.json`);
-      const response = await axios.get(uri, {params: {key: process.env.DB_tomtomApiKey}});
+      const response = await axios.get(uri, {params: {key: process.env.tomAPI_key}});
       const results = response.data.results;
+      console.log('Results:', results);
       if (!results && results.length === 0) {
         return res.status(400).json({ message: 'Invalid address' });
       }
@@ -167,7 +169,7 @@ const ClientController = {
     }
     await db.init();
     try{
-      const updateResult = await db.tutorCollection.updateOne({ email }, {$set: update });
+      const updateResult = await db.clientCollection.updateOne({ email }, {$set: update });
       console.log('Update Result:', JSON.stringify(updateResult, null, 2));
       if(updateResult.modifiedCount === 1) {
         return response.status(200).json({ message: `successfully updated ${Object.keys(update)} field`});
