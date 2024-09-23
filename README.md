@@ -36,6 +36,7 @@ Note: The .env file should not be pushed to version control systems like Git as 
 <p>
 contributors: 
 Daniel Ebuka Mabia 08087681764 danielebukamabia@gmail.com
+
 Uko uwatt 08067089484
 </p>
 <p>This is a portfolio project for the ALX Software Engineering Programme developed by Daniel Ebuka Mabia and Uko Uwatt, who are both students of the program. At the time of writing, this project has not been hosted; it is only available on GitHub. The project was chosen to help both students learn and understand the fundamentals of backend programming.
