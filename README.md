@@ -3,7 +3,11 @@
 <h3>Installation</h3>
 <p>Clone the repository:
 git clone  https://github.com/princedan-123/parentPal.git
+</p>
+<p>
 cd parentPal
+</p>
+<p>
 Install dependencies by running:
 npm install
 </p>
