@@ -22,10 +22,14 @@ npm install
 <li>tomApi_key=<your tomtom api key></li>
 </ul>
 Start the app by running:
+<p>
 npm run dev
 # or
 node app.js
+</p>
+<p>
 Note: The .env file should not be pushed to version control systems like Git as it contains sensitive data. It should be added to .gitignore.
+</p>
 <p><strong>For more information about the various API endpoints in the project, please refer to the API_documentation directory of this project.</strong> </p>
 </p>
 <h4>Foot notes<h4>
