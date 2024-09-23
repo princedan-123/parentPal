@@ -1,4 +1,4 @@
-    {
+{
     "name": "string",
     "subject":  ["array of subjects"],
     "likes": "number of likes",
