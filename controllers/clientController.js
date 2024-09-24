@@ -22,9 +22,8 @@ const ClientController = {
       // prepare query string for geocoding
       const query = `${streetNumber} ${streetName} ${city} ${state} ${country}`;
       const uri = encodeURI(`https://api.tomtom.com/search/2/geocode/${query}.json`);
-      const response = await axios.get(uri, {params: {key: process.env.tomAPI_key}});
+      const response = await axios.get(uri, {params: {key: process.env.tomApi_key}});
       const results = response.data.results;
-      console.log('Results:', results);
       if (!results && results.length === 0) {
         return res.status(400).json({ message: 'Invalid address' });
       }
@@ -52,26 +51,39 @@ const ClientController = {
         address
       };
       const newClient = await db.clientCollection.insertOne(clientData);
-      return res.status(201).json({ message: 'Client created successfully', clientId: newClient.insertedId });  
+      const userName = `${newClient.firstName}-${newClient.lastName}`;
+      return res.status(201).json({ message: 'Client created successfully'});  
     } catch (error) {
-      return res.status(500).json({ message: "Error" });
+      return res.status(500).json({ message: `Error: ${error}` });
     } finally {
         await db.close();
     }
   },
 
   async deleteClient(req, res) {
+    if (!req.session.client) {
+      return res.status(404).json({ error: 'Client not found' });
+    }
     const {email, password} = req.body;
     if (!email || !password) {
       return res.status(400).json({ message: 'Missing required field' });
     }
+    await db.init();
     try {
-      await db.init();
+      const hashedPassword = sha1(password);
+      const user = await db.clientCollection.findOne({email});
+      if(!user) {
+        return response.status(404).json({ error: 'user not found' });
+      }
+      const { userName } = user;
+      if(hashedPassword !== user.password) {
+        return response.status(400).json({ unauthorized: 'incorrect password' });
+      }
       const deletedClient = await db.clientCollection.deleteOne({ email });
       if (deletedClient.deletedCount === 0) {
         return res.status(404).json({ message: 'Client not found' });
       }
-      return res.status(200).json({ message: 'Client deleted successfully' });
+      return res.status(200).json({ message: 'account has been successfully removed' });
     } catch (error) {
         return res.status(500).json({ message: `Error: ${error.message}` });
     } finally {
@@ -100,8 +112,11 @@ const ClientController = {
           firstName, lastName, userName, country, state,
           city, area, street, email
         }
+        clientData.userName = `${firstName}-${lastName}`;
         req.session.client = clientData;
-          return res.status(200).json({ status: 'logged in' })
+        if (req.session.client) {
+          return res.status(200).json({ status: `logged in, welcome ${clientData.userName}` })
+        }
       }
       if (!client) {
         return res.status(404).json({ error: 'incorrect email'});
@@ -117,50 +132,60 @@ const ClientController = {
   },
 
   async Logout(req, res) {
-    if (!req.session.client) {
-      return res.status(404).json({ error: 'user not logged in'});
+    if(!req.session.client) {
+      return response.status(404).json({ error: 'user not logged in'});
     }
-    response.clearCookie('sessionId');
-    req.session.destroy((error) => {
-      if (error) {
-        return res.status(500).json({ error: 'an error occurred during logout'});
-      }
-      return res.status(200).json({ status: 'logged out' });
-    });
+    const {userName} = req.session.client;
+    req.session.destroy();
+    res.clearCookie('sessionId');
+    if(!req.session) {
+      return res.status(200).json({ message: `${userName} succesfully logged out` });
+    }
+    return res.status(500).json({ error: `${userName} is still active` })
   },
 
   async getClients(req, res) {
-    try {
-      await db.init();
-      const projection = { firstName: 1, lastName: 1, createdAt: 1, email: 1}
-      const clients = await db.clientCollection.find({}, {projection}).toArray();
-      return res.status(200).json(clients);
-    } catch (error) {
-      console.error(`Error fetching clients: ${error.message}`); 
-      return res.status(500).json({ message: `Error: ${error.message}` });
-    } finally {
-      await db.close()
+    if (!req.session.client) {
+      return res.status(404).json({ error : "client not found"});
+    }
+    if(req.session.client) {
+      const {
+        firstName, lastName, userName, country, state,
+          city, area, street, email
+      } = req.session.client
+      const profile = {
+        firstName, lastName, userName, country, state,
+          city, area, street, email
+      }
+      return res.status(200).json(profile);
     }
   },
 
   async updateClient(request, response) {
-    const {email, firstName, lastName, phone, streetNumber, streetName, city, state, country } = request.body;
+    if (!request.session.client) {
+      return response.status(404).json({ error : "client not found"});
+    }
+    const { email } = request.session.client;
     if (!email) {
       return response.status(400).json("Email is required for the update");
     }
-    const update = {firstName, lastName, phone, streetNumber, streetName, city, state, country};
-    // retrieve the data we want to update
+    const update = request.body;
+    if (!update) {
+      return response.status(400).json({ error: 'missing fields to update'});
+    }
     const mutable = [
-        "firstName",
-        "lastName",
-        "email",
-        "phone",
-        "streetNumber",
-        "streetName",
-        "city",
-        "state",
-        "country"
-      ]
+      "firstName",
+      "lastName",
+      "email",
+      "phone",
+      "streetNumber",
+      "streetName",
+      "city",
+      "state",
+      "country"
+    ]
+    // retrieve the data we want to update
+    
     
     for (const field of Object.keys(update)) {
       if(update[field] !== undefined && !mutable.includes(field)) {
@@ -172,7 +197,7 @@ const ClientController = {
       const updateResult = await db.clientCollection.updateOne({ email }, {$set: update });
       console.log('Update Result:', JSON.stringify(updateResult, null, 2));
       if(updateResult.modifiedCount === 1) {
-        return response.status(200).json({ message: `successfully updated ${Object.keys(update)} field`});
+        return response.status(200).json({ message: `successfully updated fields for ${Object.keys(update)}`});
       }
       if(updateResult.modifiedCount === 0) {
         return response.status(400).json({ message: 'no changes were made to profile '});

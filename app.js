@@ -24,7 +24,7 @@ app.use(session({
   }
 
 }));
-app.use(clientRouter);
+app.use('/client', clientRouter);
 app.use('/tutor', router);
 app.get('/', (req, res) => {
   res.send('welcome to parentPal\n');
