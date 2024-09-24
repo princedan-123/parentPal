@@ -38,7 +38,6 @@ const userController = {
             return b.matchConfidence.score - a.matchConfidence.score;
           })
           const closestMatch = results[0];
-          console.log('!!closestMatch:', closestMatch)
           userData.position = {
             latitude: closestMatch.position.lat,
             longitude: closestMatch.position.lon

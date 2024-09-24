@@ -74,7 +74,6 @@ const appController = {
         return b.matchConfidence.score - a.matchConfidence.score;
       })
       let closestMatch = result[0];
-      console.log('!!!closestmatch:', closestMatch)
       origin = [
         {
           "point": {
@@ -84,7 +83,6 @@ const appController = {
         }
       ]
     }
-    console.log(origin)
     if(result.length === 0) {
       return res.status(404).json({
         error:'could not encode clients address provide more data for better accuracy'
@@ -124,7 +122,9 @@ const appController = {
     }
   }).skip(skipPages).limit(pageSize).toArray(); 
   // fall back search for tutors if first search was empty
+  let fallback_tutor_search = false;
   if(tutors.length === 0) {
+    fallback_tutor_search = true;
     tutors = await db.tutorCollection.find({
       $or:[
         {"country": country}, {"state": state_region}, {"area": locality},
@@ -135,15 +135,13 @@ const appController = {
       position: 1, firstName: 1, lastName: 1, userName: 1, subject: 1,
       available: 1, socialMediaHandles: 1, country: 1, state: 1, area: 1,
       _id: 0
-    }}).toArray();
+    }}).skip(skipPages).limit(pageSize).toArray();
   }
-  console.log('!!!tutors:', tutors)
   for(const tutor of tutors) {
     destination.push({
       "point": {"latitude": tutor.position.latitude, "longitude": tutor.position.longitude}
     })
   }
-  console.log("!!!destination:", destination)
   // make matrix request to tomtom api
   encodedUri = encodeURI(`https://api.tomtom.com/routing/matrix/2`);
   const jsonData = {
@@ -166,7 +164,6 @@ const appController = {
       fallback: tutors
     })
   }
-  console.log('!!!matrix:', matrix.data)
   matrix.data.data.sort((a, b) => a.routeSummary.lengthInMeters - b.routeSummary.lengthInMeters);
   const nearestTutors = [];
   for(const distanceMatrix of matrix.data.data) {
@@ -177,6 +174,7 @@ const appController = {
     nearestTutors.push(tutor);
   }
   return res.status(200).json({
+    "fallback_tutor_search": fallback_tutor_search,
      "pageCount": pageCount,
      "tutors": nearestTutors 
     });
