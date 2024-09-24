@@ -15,6 +15,12 @@ The api contains the following endpoints
  - /tutor/logout
  - /tutor/remove
  - /tutor/updateProfile
+ - /client/searchClient
+ - /client/Login
+ - /client/logout
+ - /client/deleteClient
+ - /client/updateProfile
+ - /client/getProfile
 
 <h2>createTutor Endpoint:</h2>
 <p>
@@ -258,4 +264,236 @@ Status code 500: this indicates that an internal error in the database operation
 
     {	
 	    "error": "error message"
+    }
+
+<h2>createClient Endpoint:</h2>
+<p>
+This endpoint allows you to create a new client.
+POST localhost:8080/client/createClient
+</p>
+<p>**Request data**
+Request Body
+
+firstName (string, required): The first name of the client.
+lastName (string, required): The last name of the client.
+email (string, required): The email address of the client.
+password (string, required): The password for the client's account.
+phone (string, required): The phone number of the client.
+streetNumber (string, required): The street number of the client's address.
+streetName (string, required): The street name of the client's address.
+city (string, required): The city of the client's address.
+state (string, required): The state of the client's address.
+country (string, required): The country of the client's address.
+
+Response (201 - Created)
+The response will be in JSON format with the following schema:
+
+JSON
+{
+    "message": "client created succesfully"
+}
+
+**Response**
+
+Status code 400 : A 400 status code with a json missing field  indicates that one of the fields is missing. If email or password field is missing the json error field will indicate missing email or missing password
+
+    {
+	    "error": "missing email field"
+    }
+    {
+	    "error": "missing password field"
+    }
+
+Status code 201: This indicates the client resource was created sucessfully. A json payload is also return with the userId field
+Status code 500: This indicates an internal server issue from the utilization of the tomtom geocoding API.
+
+<h2>/Login endpoint:</h2>
+This enpoint takes authentication credentials (email and password) and  gives a specific client resource access to the app after authenticating the login credentials. it logs in the user and utilizes session based authentication to keep the user authenticated through out the session. After authentication a unique sessionId is generated and returned to the client as a cookie. This cookie should be used for subsequent request to retain the session.
+
+**Request data**
+Method: This endpoint uses a POST HTTP metod
+url: www.http://localhost:8080/client/Login
+Request header: The Content-Type header should be application/x-www-form-urlencoded as the post request body is a urlencoded form data
+Body: The request body of the POST request is a urlencoded form data with the email key containing the client's email and the password key containing the tutor's password.
+**Response**
+Status code 200: This means the client is logged in successfully. A json payload with a status field with "logged in" as its value.
+
+    {
+	    "status": "logged in"
+    }
+ Status code 404: A 404 status code  is  returned if the email key contains an invalid email or the password key contains an invalid password.
+ 
+
+    {
+	    "error": "incorrect login credentials"
+    }
+ Status code 500: A 500 status code is returned if  the database is unable to authenticate the client.
+
+<h2>/Logout:</h2>
+It destroys removes the user from the app session my destroying the session object, clears the session cookie.
+**Request data**
+Method: This endpoint uses a DELETE HTTP method.
+Cookie:sessionId={cookie from login Api}.
+url: www.http://localhost:8080/client/Logout
+**Response**
+Status code 404: This indicates the user is not found in the session. It is followed by a json response.
+
+    {	
+	    "error": "user not logged in"
+    }
+Status code 200: A json response along with a status code is returned to signify that a client successfully logged out.
+
+    {	
+	    "message" "${userName} succesfully logged out "
+    }
+Status code 500: this indicates that an internal error occured and the user is still active.
+
+    {	
+	    "error": "${userName} is still active"
+    }
+
+
+<h2>/deleteClient:</h2>
+It deletes a client's account from the database.
+**Request data**
+Method: This endpoint uses a DELETE HTTP metod
+Cookie:sessionID({Cookie value from login API})
+url: www.http://localhost:8080/client/deleteClient
+Request header: It should contain  a Content-Type header of application/json
+Request body: The Delete request should contain a json payload with email and password fields.
+
+    {	
+	    "email": "string",
+	    "password": "string"
+    }
+
+
+**Response**
+Status code 404: This indicates the user is not found in the session or the user is not found in the database.  It is followed by a json response.
+If the user is not found in the session:
+
+    {	
+	    "error": "user not logged in"
+    }
+ If the user is not found in the database:
+ 
+
+    {	
+	    "error": "user not found"
+    }
+
+ Status code 400: This indicates the a bad request. It could be as a result of a missing email or password field. It could also be as a result of an incorrect password. The json payload returned indicates the error message.
+For missing email field:
+
+    {	
+	    "unauthorized": "email field is required"
+    }
+For missing password field:
+
+    {	
+	    "unauthorized": "password field is required"
+    }
+    {	
+	    "unauthorized": "incorrect password"
+    }
+
+
+Status code 200: A json response along with the status code 200 is returned to signify that the client's account has been successfully removed.
+
+    {	
+	    "message" "${userName}'s account has been successfully removed"
+    }
+Status code 500: this indicates that an internal error in the database operation
+
+    {	
+	    "error": "error message"
+    }
+
+<h2>/updateProfile:</h2>
+It updates or changes certain fields in the user profile. Note sensitive fields like email and  password can not be changed.
+Note the user must be an authenticated user. This api uses the sessionId cookie that was created during the login stage to authenticate the user.
+**Request data**
+Method: This endpoint uses a PATCH HTTP metod
+url: www.http://localhost:8080/client/updateProfile
+Cookie:sessionId({from login API})
+Request header: It should contain  a Content-Type header of application/json
+Request body: The PATCH request should contain a json payload that contains the fields the client wants to change with their corresponding values.
+For example:
+
+    {	
+	    "available": "false"
+    }
+The following are the only fields that can be changed:
+
+"firstName",
+"lastName",
+"email",
+"phone",
+"streetNumber",
+"streetName",
+"city",
+"state",
+"country"
+
+**Response**
+Status code 400: This indicates a bad request. It is followed by a json request which indicates the error.
+When you attempt to change an unauthorized field.
+
+    {	
+	    "message": "you cannot update this ${field}"
+    }
+    
+When no new data was introduced
+
+    {	
+	    "message": "no changes were made to profile"
+    }
+
+When the value is inappropriate:
+    {
+        "error": "${fieldName} is an array"
+    }
+Status code 404: This indicates the user was not found in the session. it is accompanied by a json payload:
+
+    {	
+	    "error": "user not found"
+    }
+
+Status code 200: If the update was successful, a status code 200 along with a json payload indicating the field that was updated is returned.
+
+    {	
+	    "message": "successfully updated ${fieldName} field"
+    }
+
+Status code 500: this indicates that an internal error in the database operation
+
+    {	
+	    "error": "error message"
+    }
+
+
+ <h2>getProfile:</h2>
+  This endpoint is used to acess public or non sensisitive information about the client resource.
+  It should be noted that this api is session authentication based hence it uses the cookie created in the login session to identify the user in the session.
+  **Request data**: 
+  Method: This endpoint uses a GET HTTP metod.
+  Cookie: sessionId={cookie returned by login Api}
+url: www.http://localhost:8080/client/getProfile.
+**Response**
+Status code 200: A 200 status code and a json payload containinig information about the client resource is returned.
+
+    {
+	    "firstName":  "Uko",
+	    "lastName":  "Uwatt",
+	    "userName":  "Uko-Uwatt",
+		"country":  "Nigeria",
+		"state":  "Edo",
+		"city":  "Benin City",
+		"area":  "Upper sakponba",
+		"street":  "Iso street"
+	}
+Status Code 404: A  404 status code indicates that the user is not found. This is due to the user not being authenticated. A json payload is also returned along side this status code.
+
+    {
+	    "error": "user not found"	
     }
