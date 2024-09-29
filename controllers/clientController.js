@@ -145,21 +145,60 @@ const ClientController = {
   },
 
   async getClients(req, res) {
+    // Check if the client exists in the session
     if (!req.session.client) {
-      return res.status(404).json({ error : "client not found"});
+      return res.status(404).json({ error: "client not found" });
     }
-    if(req.session.client) {
-      const {
-        firstName, lastName, userName, country, state,
-          city, area, street, email
-      } = req.session.client
-      const profile = {
-        firstName, lastName, userName, country, state,
-          city, area, street, email
+  
+    // Destructure necessary fields from session client
+    const {
+      firstName, lastName, userName, country, state,
+      city, area, street, email
+    } = req.session.client;
+  
+    await db.init();
+  
+    try {
+      // Find client by email in the database
+      const client = await db.clientCollection.findOne({ email });
+      
+      // Check if the client exists in the database
+      if (!client) {
+        return res.status(404).json({ error: 'client not found' });
       }
-      return res.status(200).json(profile);
+  
+      // Destructure necessary fields from the database client
+      const {
+        firstName: dbFirstName, lastName: dbLastName, userName: dbUserName,
+        country: dbCountry, state: dbState, city: dbCity,
+        area: dbArea, street: dbStreet, email: dbEmail
+      } = client;
+  
+      // Prepare client data to send in the response
+      const clientData = {
+        firstName: dbFirstName || firstName,
+        lastName: dbLastName || lastName,
+        userName: dbUserName || userName,
+        country: dbCountry || country,
+        state: dbState || state,
+        city: dbCity || city,
+        area: dbArea || area,
+        street: dbStreet || street,
+        email: dbEmail || email
+      };
+  
+      // Return the client data as a JSON response
+      return res.status(200).json(clientData);
+  
+    } catch (error) {
+      // Return an error response if something goes wrong
+      return res.status(500).json({ error: `${error.message}` });
+    } finally {
+      // Close the database connection
+      await db.close();
     }
   },
+  
 
   async updateClient(request, response) {
     if (!request.session.client) {
