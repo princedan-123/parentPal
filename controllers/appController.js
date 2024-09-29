@@ -18,11 +18,11 @@ const appController = {
       if (user && user.password === hashedPassword) {
         const {
           firstName, lastName, userName, qualifications, country, state,
-          city, area, street, subjects, available, email
+          city, area, street, subject, available, email
         } = user;
         const userData = {
           firstName, lastName, userName, qualifications, country, state,
-          city, area, street, subjects, available, email
+          city, area, street, subject, available, email
         }
         req.session.user = userData;
         return res.status(200).json({ status: 'logged in' })

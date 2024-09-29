@@ -95,14 +95,14 @@ const userController = {
       const {
         firstName, lastName, userName, qualifications,
         country, state, city, area,
-        street, subjects, available
+        street, subject, available
       } = request.session.user
       const profile = {
         firstName,
         lastName,
         userName,
         qualifications,
-        teaches: subjects,
+        teaches: subject,
         available,
         country,
         state,
@@ -191,6 +191,13 @@ const userController = {
       try{
         const updateResult = await db.tutorCollection.updateOne({ email }, {$set: update });
         if(updateResult.modifiedCount === 1) {
+          // updating stale session cache
+          for(const updateField of Object.keys(update)) {
+            if(request.session.user[updateField]) {
+              request.session.user[updateField] = update[updateField];
+            }
+          request.session.save();
+        }
           return response.status(200).json({ message: `successfully updated ${Object.keys(update)} field`});
         }
         if(updateResult.modifiedCount === 0) {
